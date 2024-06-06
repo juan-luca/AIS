@@ -1,0 +1,770 @@
+﻿using System;
+
+using System.Data;
+using System.Collections;
+using Comun;
+using BusComun;
+
+namespace Inchost
+{
+    public class Inchost:cBase
+    {
+        
+        private const int ALTACONV    = 1;
+        private const int PAGOS       = 2;
+        private const int DEUDA       = 3;
+        private const int CLIENTES    = 4;
+        private const int DIRECCIONES = 5;
+        private const int TELEFONOS   = 6;
+        private const int MAILS       = 7;
+        private const int CONTACTOS   = 8;
+        private const int RELACIONES  = 9;
+        private const int PASIVO      = 10;
+        private const int TARJETAS    = 11;
+        private const int CTACTE      = 12;
+        private const int PRESTAMOS   = 13;
+        private const int CUOTAS      = 14;
+        private const int GARANTIAS   = 15;
+        private const int OBLIGACIONES= 16;
+        private const int ACTUALIZACIONCONV = 17;
+        private const int LOTES = 18;
+        private const int ESTRATEGIAS = 19;
+        private const int ESTADISTICAS = 20;
+        private const int HISTORICO = 21;
+        private const int DEPURADOR = 22;
+
+       
+
+        private ArrayList Procesos;
+
+
+
+        public int EjecuarInchost(string[] args)
+        {
+            int nRet = 0;
+
+            cGlobales.ArchivoLog = "RECOBRO.LOG";
+
+            /******************************************************************************** 
+             * Cargo datos necesarios desde XML de inicializacion y Parametros de Entrada 
+             ********************************************************************************/
+            if ((nRet = this.CargoParametrosDeInicio(args)) != 0)
+                return nRet;
+
+            /******************************************************************************** 
+             * Conexion a la base de datos 
+             ********************************************************************************/
+            conn = new cConexion(cGlobales.XMLConex);
+            conn.Conectar();
+
+            if (conn.Errores.Cantidad() != 0)
+            {
+                cIncidencia.Generar(conn.Errores, "Error de conexion a la BD");
+                return -1;
+            }
+  
+            /******************************************************************************** 
+             * Preparacion de archivo de incidencia 
+             ********************************************************************************/
+
+            cGlobales.FicheroIncid = cGlobales.ComponerNombreArchivo(cGlobales.FicheroIncid, cGlobales.Hoy, cGlobales.sExtFichDatos);
+            cIncidencia.CrearArchivoIncidencia(cGlobales.FicheroIncid);
+
+            /******************************************************************************** 
+             * Inicializacion de fechas de proceso
+             ********************************************************************************/
+
+            conn.ComienzoTransaccion();
+            cFechaHabil FecHabil = new cFechaHabil(conn);
+            if (FecHabil.InicializarFechaProceso(cGlobales.Hoy))
+                conn.CommitTransaccion();
+            else
+            {
+                cIncidencia.Aviso("Error inicializando fechas de proceso");
+                conn.RollbackTransaccion();
+                conn.Desconectar();
+                return -2;
+            }
+
+
+            /******************************************************************************** 
+             * Proceso Generacion Convenios de Pago
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(ALTACONV))
+            {
+                cIncidencia.Aviso("Empieza proceso de Alta de Convenios");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Convenios vConvenios = new BusInchost.Convenios(conn);
+
+                if (vConvenios.ProcesoConvenios())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Alta de Convenios");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Alta de Convenios");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return ALTACONV;
+                }
+            }
+            
+
+            
+            /******************************************************************************** 
+             * Proceso de Pagos
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(PAGOS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Pagos");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Pagos vPagos = new BusInchost.Pagos(conn);
+
+                if (vPagos.ProcesoPagos())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Pagos");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Pagos");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return PAGOS;
+                }
+            }
+
+
+            /******************************************************************************** 
+             * Proceso de Deudas
+             ********************************************************************************/
+
+            if (this.HayQueEjecSubProceso(DEUDA))
+            {
+                cIncidencia.Aviso("Empieza proceso de Deuda");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Deudas vDeuda = new BusInchost.Deudas(conn);
+
+                if (vDeuda.ProcesoDeudas())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Deuda");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Deuda");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return DEUDA;
+                }
+            }
+
+            /******************************************************************************** 
+             * Proceso Clientes
+             ********************************************************************************/
+
+            if (this.HayQueEjecSubProceso(CLIENTES))
+            {
+                cIncidencia.Aviso("Empieza proceso de Clientes");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Clientes vClientes = new BusInchost.Clientes(conn);
+
+                if (vClientes.ProcesoClientes())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Clientes");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Clientes");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return CLIENTES;
+                }
+            }
+
+            /******************************************************************************** 
+             * Proceso Direcciones
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(DIRECCIONES))
+            {
+                cIncidencia.Aviso("Empieza proceso de Direcciones");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Direcciones vDirecciones = new BusInchost.Direcciones(conn);
+
+                if (vDirecciones.ProcesoDirecciones())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Direcciones");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Direcciones");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return DIRECCIONES;
+                }
+            }
+
+            /******************************************************************************** 
+             * Proceso Telefonos
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(TELEFONOS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Telefonos");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Telefonos vTelefonos = new BusInchost.Telefonos(conn);
+                
+                if (vTelefonos.ProcesoTelefonos())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Telefonos");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Telefonos");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return TELEFONOS;
+                }
+            }
+
+            /******************************************************************************** 
+             * Proceso Mails
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(MAILS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Mails");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Mails vMails = new BusInchost.Mails(conn);
+
+                if (vMails.ProcesoMails())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Mails");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Mails");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return MAILS;
+                }
+            }
+
+            /******************************************************************************** 
+             * Proceso Contactos.  No se implementa carga en esta versión
+             ********************************************************************************/
+
+            /******************************************************************************** 
+             * Proceso Relaciones
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(RELACIONES))
+            {
+                cIncidencia.Aviso("Empieza proceso de Relaciones");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Relaciones vRelac = new BusInchost.Relaciones(conn);
+
+                if (vRelac.ProcesoRelaciones())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Relaciones");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Relaciones");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return RELACIONES;
+                }
+            }
+
+
+            /******************************************************************************** 
+             * Proceso Pasivo
+             ********************************************************************************/
+            if (this.HayQueEjecSubProceso(PASIVO))
+            {
+                cIncidencia.Aviso("Empieza proceso de Pasivo");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Pasivo vPasivo = new BusInchost.Pasivo(conn);
+
+                if (vPasivo.ProcesoPasivo())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Pasivo");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Pasivo");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return PASIVO;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Tarjetas
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(TARJETAS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Tarjetas");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Tarjetas vTarj = new BusInchost.Tarjetas(conn);
+
+                if (vTarj.ProcesoTarjetas())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Tarjetas");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Tarjetas");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return TARJETAS;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso CtaCte
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(CTACTE))
+            {
+                cIncidencia.Aviso("Empieza proceso de Cta.Cte.");
+                conn.ComienzoTransaccion();
+
+                BusInchost.CtaCte vCtaCte = new BusInchost.CtaCte(conn);
+
+                if (vCtaCte.ProcesoCtaCte())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Cta.Cte.");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Cta.Cte.");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return CTACTE;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Prestamos
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(PRESTAMOS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Prestamos");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Prestamos vPrestamos = new BusInchost.Prestamos(conn);
+
+                if (vPrestamos.ProcesoPrestamos())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Prestamos");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Prestamos");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return PRESTAMOS;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Cuotas
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(CUOTAS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Cuotas");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Cuotas vCuotas = new BusInchost.Cuotas(conn);
+
+                if (vCuotas.ProcesoCuotas())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Cuotas");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Cuotas");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return CUOTAS;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Garantias
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(GARANTIAS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Garantias");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Garantias vGarantias = new BusInchost.Garantias(conn);
+
+                if (vGarantias.ProcesoGarantias())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Garantias");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Garantias");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return GARANTIAS;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Obligaciones
+             * ********************************************************************************/
+            if (this.HayQueEjecSubProceso(OBLIGACIONES))
+            {
+                cIncidencia.Aviso("Empieza proceso de Obligaciones");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Obligaciones vObligaciones = new BusInchost.Obligaciones(conn);
+
+                if (vObligaciones.ProcesoObligaciones())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Obligaciones");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Obligaciones");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return OBLIGACIONES;
+                }
+            }
+
+            
+
+
+            /******************************************************************************** 
+            * Actualiza Estructuras Convenios de Pago
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(ACTUALIZACIONCONV))
+            {
+                cIncidencia.Aviso("Empieza proceso de actualización de estructuras de Convenios de Pago");
+               conn.ComienzoTransaccion();
+
+                BusInchost.Convenios vConvenios = new BusInchost.Convenios(conn);
+
+                if (vConvenios.ProcesaEstConvP())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de actualización de estructuras de Convenios de Pago");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de actualización de estructuras de Convenios de Pago");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return ACTUALIZACIONCONV;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Lider y Lotes
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(LOTES))
+            {
+                cIncidencia.Aviso("Empieza proceso de Lotes");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Lotes vLotes = new BusInchost.Lotes(conn);
+
+                if (vLotes.ProcesoLotes())
+                {
+                    cIncidencia.Aviso("Finaliza proceso de Lotes");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso de Lotes");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return LOTES;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Selector de Estrategias
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(ESTRATEGIAS))
+            {
+                cIncidencia.Aviso("Empieza proceso Selector de Estrategias");
+                conn.ComienzoTransaccion();
+
+                BusMotor.Motor vMotor = new BusMotor.Motor(conn);
+
+                if (vMotor.ProcesoSelectorEstrategias())
+                {                    
+                    conn.CommitTransaccion();
+                    cIncidencia.Aviso("Comienza Asignacion de Estrategias");
+                    conn.ComienzoTransaccion();
+
+                    BusInchost.Lotes vLotes = new BusInchost.Lotes(conn);
+
+                    if (vLotes.AsignarEstrategias())
+                    {
+                        conn.CommitTransaccion();
+                        cIncidencia.Aviso("Finaliza proceso Selector de Estrategias");                    
+                    }
+
+                    else
+                    {
+                        cIncidencia.Aviso("Error en proceso Selector de Estrategias");
+                        conn.RollbackTransaccion();
+                        conn.Desconectar();
+                        return ESTRATEGIAS;
+                    }                    
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso Selector de Estrategias");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return ESTRATEGIAS;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Estadisticas
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(ESTADISTICAS))
+            {
+                cIncidencia.Aviso("Empieza proceso de Estadisticas");
+                cIncidencia.Aviso("Finaliza proceso de Estadisticas");
+            }
+
+            /******************************************************************************** 
+            * Proceso Historico
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(HISTORICO))
+            {
+                cIncidencia.Aviso("Empieza proceso Historico");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Historicos vHistoricos = new BusInchost.Historicos(conn);
+
+                if (vHistoricos.ProcesoHistoricos())
+                {
+                    cIncidencia.Aviso("Finaliza proceso Historico");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso Historico");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return HISTORICO;
+                }
+            }
+
+            /******************************************************************************** 
+            * Proceso Depurador
+            ********************************************************************************/
+            if (this.HayQueEjecSubProceso(DEPURADOR))
+            {
+                cIncidencia.Aviso("Empieza proceso Depuracion");
+                conn.ComienzoTransaccion();
+
+                BusInchost.Historicos vHistoricos = new BusInchost.Historicos(conn);
+
+                if (vHistoricos.ProcesoDepuracion())
+                {
+                    cIncidencia.Aviso("Finaliza proceso Depuracion");
+                    conn.CommitTransaccion();
+                }
+                else
+                {
+                    cIncidencia.Aviso("Error en proceso Depuracion");
+                    conn.RollbackTransaccion();
+                    conn.Desconectar();
+                    return DEPURADOR;
+                }
+            }
+
+            /******************************************************************************** 
+            * Actualizo Fecha de Proceso
+            ********************************************************************************/
+            conn.ComienzoTransaccion();
+            FecHabil = new cFechaHabil(conn);
+            if (FecHabil.ActualizarIndiceFechasHabilesBD(1))
+                conn.CommitTransaccion();
+            else
+            {
+                cIncidencia.Aviso("Error actualizando fechas de proceso");
+                conn.RollbackTransaccion();
+                conn.Desconectar();
+                return -2;
+            }
+
+            /******************************************************************************** 
+            * Desconecto de  la base de datos y finalizo el proceso con error level en 0
+            ********************************************************************************/
+            conn.Desconectar();
+
+            return 0;
+
+        }
+
+       
+
+        /******************************************************************************** 
+         RECUPERO LA INFORMACION DE ARRANQUE DEL PROCESO.
+         SETEO VARIABLES QUE VOY A UTILIZAR A LO LARGO DE TODOS EL PROCESO.
+        ********************************************************************************/
+        private int CargoParametrosDeInicio(string[] args)
+        {
+            try
+            {
+                cGlobales.DirEjecucion = AppDomain.CurrentDomain.BaseDirectory;
+
+                if (args.Length >= 2)
+                    cGlobales.XMLProceso = args[0].ToString();
+                else
+                {
+                    cIncidencia.AvisoAConsola("Uso del programa:");
+                    cIncidencia.AvisoAConsola("  INCHOST <fichero_XML_inicializacion> [<fecha> [<ultimo proceso>]]");
+                    cIncidencia.AvisoAConsola("  Parametros:");
+                    cIncidencia.AvisoAConsola("   <fichero_XML_inicializacion> : Ruta del fichero XML de inicializacion de los procesos de inchost");
+                    cIncidencia.AvisoAConsola("   <fecha> : Fecha de los archivos de datos del Host en formato AAAAMMDD  [Fecha Actual]");
+                    cIncidencia.AvisoAConsola("   <ultimo proceso> : ultimo proceso ejecutado (para reenganches) [0]");
+                    return -1;
+                }
+
+                if (args.Length >= 2)
+                    cGlobales.Hoy = args[1].ToString();
+                else
+                {
+                    cGlobales.Hoy = cFormat.FechaPcToBD(DateTime.Today.ToShortDateString());
+                    cIncidencia.Aviso("Se toma la fecha de hoy.");
+                }
+
+                /* Recupera el ultimo proceso ejecutado */
+                if (args.Length > 3)
+                    cGlobales.nUltimoProceso = Convert.ToInt32(args[2].ToString());
+                else
+                    cGlobales.nUltimoProceso = 0;
+
+                if (cGlobales.nUltimoProceso < 0)
+                    cGlobales.nUltimoProceso = 0;
+            }
+            catch
+            {
+                // Error al recuperar parametros 
+                cIncidencia.Aviso("MAIN: error al recuperar parametros del programa");
+                return -1;
+            }
+
+            try
+            {
+                /* Leo XML de configuracion*/
+                DataSet ds = new DataSet();
+                DataTable Tabla;
+                ds.ReadXml(cGlobales.XMLProceso);
+
+                /*  Recupero parametros de conexion*/
+                Tabla = ds.Tables["Conexion"];
+                cGlobales.XMLConex = Tabla.Rows[0]["Fichero"].ToString();
+             
+                // RECUPERO VARIABLES CONFIGURACION
+                Tabla = ds.Tables["Parametros"];
+                cGlobales.FicheroIncid = Tabla.Rows[0]["FicheroIncid"].ToString();  //"INCIDENCIAS.TXT";
+                cGlobales.sExtFichDatos = Tabla.Rows[0]["ExtFichDatos"].ToString();
+                cGlobales.PctMinEficCP = Convert.ToDouble(Tabla.Rows[0]["PctMinEficCP"].ToString());
+
+                Tabla = ds.Tables["MultiThread"];
+                cGlobales.nHilosClientes = Convert.ToInt32(Tabla.Rows[0]["HilosClientes"].ToString());
+                cGlobales.nClientesXHilo = Convert.ToInt32(Tabla.Rows[0]["ClientesXHilo"].ToString());
+
+                cGlobales.nHilosTelefonos = Convert.ToInt32(Tabla.Rows[0]["HilosTelefonos"].ToString());
+                cGlobales.nTelefonosXHilo = Convert.ToInt32(Tabla.Rows[0]["TelefonosXHilo"].ToString());
+
+                cGlobales.nHilosDirecciones = Convert.ToInt32(Tabla.Rows[0]["HilosDirecciones"].ToString());
+                cGlobales.nDireccionesXHilo = Convert.ToInt32(Tabla.Rows[0]["DireccionesXHilo"].ToString());
+
+                cGlobales.nHilosMails = Convert.ToInt32(Tabla.Rows[0]["HilosMails"].ToString());
+                cGlobales.nMailsXHilo = Convert.ToInt32(Tabla.Rows[0]["MailsXHilo"].ToString());
+
+                cGlobales.nHilosGarantias = Convert.ToInt32(Tabla.Rows[0]["HilosGarantias"].ToString());
+                cGlobales.nGarantiasXHilo = Convert.ToInt32(Tabla.Rows[0]["GarantiasXHilo"].ToString());
+
+                cGlobales.nHilosObligaciones = Convert.ToInt32(Tabla.Rows[0]["HilosObligaciones"].ToString());
+                cGlobales.nObligacionesXHilo = Convert.ToInt32(Tabla.Rows[0]["ObligacionesXHilo"].ToString());
+
+                cGlobales.nHilosLotes = Convert.ToInt32(Tabla.Rows[0]["HilosLotes"].ToString());
+                cGlobales.nLotesXHilo = Convert.ToInt32(Tabla.Rows[0]["LotesXHilo"].ToString());
+
+                cGlobales.nHilosSelecEstr = Convert.ToInt32(Tabla.Rows[0]["HilosSelecEstr"].ToString());
+                cGlobales.nSelecEstrLotesXHilo = Convert.ToInt32(Tabla.Rows[0]["SelecEstrLotesXHilo"].ToString());
+
+            }
+            catch
+            { 
+                // Error con el XML de inicializacion del INCHOST
+                cIncidencia.Aviso("MAIN: error al abrir el archivo XML de inicializacion");
+                return -1;
+            }
+
+            CargoTipoConexcion();
+
+            return 0;
+
+        }
+
+        private void CargoTipoConexcion()
+        {
+            DataSet ds = new DataSet();
+            DataTable Tabla;
+            ds.ReadXml(cGlobales.XMLProceso);
+
+            Procesos = new ArrayList();
+
+            Tabla = ds.Tables["Procesos"];
+
+            for (int i = 0; i < Tabla.Columns.Count; i++)
+            {
+                if (i >= cGlobales.nUltimoProceso)
+                    Procesos.Add(Convert.ToInt32(Tabla.Rows[0][i].ToString()));
+                else
+                    Procesos.Add(Convert.ToInt32("0"));
+            }
+       
+        }
+
+        private bool HayQueEjecSubProceso(int nProceso)
+        {
+            try
+            {
+                return (Convert.ToInt32(Procesos[nProceso-1].ToString())==1);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+}

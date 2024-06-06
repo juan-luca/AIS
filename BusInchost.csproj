@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FFFED81E-D4F8-4C8F-B744-77F648EA22CD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BusInchost</RootNamespace>
+    <AssemblyName>BusInchost</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ExcelFinancialFunctions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Soluciones\packages\ExcelFinancialFunctions.3.2.0\lib\netstandard2.0\ExcelFinancialFunctions.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\Soluciones\packages\FSharp.Core.6.0.4\lib\netstandard2.0\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cambio.cs" />
+    <Compile Include="CambioDalc.cs" />
+    <Compile Include="Clientes.cs" />
+    <Compile Include="ClientesDalc.cs" />
+    <Compile Include="Convenios.cs" />
+    <Compile Include="ConveniosDalc.cs" />
+    <Compile Include="CtaCte.cs" />
+    <Compile Include="CtaCteDalc.cs" />
+    <Compile Include="Cuotas.cs" />
+    <Compile Include="CuotasDalc.cs" />
+    <Compile Include="Deudas.cs" />
+    <Compile Include="DeudasDalc.cs" />
+    <Compile Include="Direcciones.cs" />
+    <Compile Include="DireccionesDalc.cs" />
+    <Compile Include="Garantias.cs" />
+    <Compile Include="GarantiasDalc.cs" />
+    <Compile Include="Hilos.cs" />
+    <Compile Include="Historicos.cs" />
+    <Compile Include="HistoricosDalc.cs" />
+    <Compile Include="Lotes.cs" />
+    <Compile Include="LotesDalc.cs" />
+    <Compile Include="Mails.cs" />
+    <Compile Include="MailsDalc.cs" />
+    <Compile Include="Obligaciones.cs" />
+    <Compile Include="ObligacionesDalc.cs" />
+    <Compile Include="Pagos.cs" />
+    <Compile Include="PagosDalc.cs" />
+    <Compile Include="Prestamo.cs" />
+    <Compile Include="PrestamoDalc.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Relaciones.cs" />
+    <Compile Include="RelacionesDalc.cs" />
+    <Compile Include="Tarjetas.cs" />
+    <Compile Include="TarjetasDalc.cs" />
+    <Compile Include="Refinanciacion.cs" />
+    <Compile Include="Telefonos.cs" />
+    <Compile Include="RefinanciacionDalc.cs" />
+    <Compile Include="TelefonosDalc.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OnLine\Negocio\RSModel\RSModel.csproj">
+      <Project>{17e89c5d-fe1c-407c-be5a-ef8235013c8f}</Project>
+      <Name>RSModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BusComun\BusComun.csproj">
+      <Project>{9E1B04CD-AAA6-4AD2-A4A7-9A84521D6015}</Project>
+      <Name>BusComun</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Comun\Comun.csproj">
+      <Project>{e7f3a06f-4253-49f2-ad8f-890046ce04c6}</Project>
+      <Name>Comun</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
